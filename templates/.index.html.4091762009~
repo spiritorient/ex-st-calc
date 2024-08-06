@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exit Strategy Calculator</title>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include noUiSlider CSS and JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.0/nouislider.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.0/nouislider.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin: 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            width: 100%;
+            align-self: center;
+        }
+
+        .slider-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px;
+            padding: 5px;
+            border: 2px solid #ddd;
+            background-color: #f7f7f7;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-controls {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 100%;
+        }
+
+        .slider-label {
+            flex: 1;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: right;
+            border-radius: 8px;
+            padding: 5px;
+            border: 2px solid #ddd;
+            background-color: #f7f7f7;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .slider {
+            flex: 9;
+            height: 12px;
+            display: flex;
+            position: relative;
+        }
+
+        .slider-container.risk,
+        .slider-container.reward {
+            border-radius: 8px;
+            padding: 5px;
+            border: 2px solid #ddd;
+            background-color: #f7f7f7;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-container.risk {
+            background-color: #ffe6e6;
+        }
+
+        .slider-container.reward {
+            background-color: #fffbe6;
+        }
+
+        .intensity-bar {
+            height: 9px;
+            border-radius: 16px;
+        }
+
+        .intensity-bar.risk {
+            background: #ffcccc;
+            border-radius: 10px;
+        }
+
+        .intensity-bar.reward {
+            background: #cccccc;
+            border-radius: 10px;
+        }
+
+        .intensity-bar.combined {
+            border-bottom-left-radius: 50%;
+            border-bottom-right-radius: 50%;
+            border-top-left-radius: 50%;
+            border-top-right-radius: 50%;
+            height: 166px;
+            width: 100%;
+            border-style: solid;
+            border-width: 6px;
+            border-color: black;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .noUi-handle {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 50%;
+            cursor: pointer;
+            top: -6px;
+            z-index: 2;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .noUi-handle:focus {
+            outline: none;
+        }
+
+        .noUi-handle:hover {
+            background: #f0f0f0;
+            border-color: #000;
+        }
+
+        .noUi-connect {
+            border-radius: 8px;
+            background: #ff0000;
+        }
+
+        .intensity-bar {
+            transition: background-color 0.2s ease, width 0.2s ease;
+        }
+
+        .customcentered1 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flipped {
+            transform: scaleX(-1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Exit Strategy Calculator</h1>
+    <form action="/calculate" method="post">
+        <label for="asset1">Asset 1:</label>
+        <input type="text" id="asset1" name="asset1" placeholder="Enter Asset 1 amount">
+
+        <label for="asset2">Asset 2:</label>
+        <input type="text" id="asset2" name="asset2" placeholder="Enter Asset 2 amount">
+
+        <label for="asset3">Asset 3:</label>
+        <input type="text" id="asset3" name="asset3" placeholder="Enter Asset 3 amount">
+        <br>
+        <!-- Risk Multiplier Slider -->
+        <div class="intensity-bar risk" id="risk_bar"></div>
+        <div class="slider-container risk" id="risk_container">
+            <div class="slider-title">Risk Multiplier</div>
+            <div class="slider-controls">
+                <span id="risk_value" class="slider-label">1.0</span>
+                <div id="risk_slider" class="slider"></div>
+                <input type="hidden" id="risk_multiplier" name="risk_multiplier" value="1.0">
+            </div>
+        </div>
+        <br>
+        <!-- Combined Intensity Bar -->
+        <span class="customcentered1">
+            <div class="intensity-bar combined" id="combined_intensity_bar"></div>
+        </span>
+        <br>
+        <!-- Reward Multiplier Slider -->
+        <div class="slider-container reward" id="reward_container">
+            <div class="slider-title">Reward Multiplier</div>
+            <div class="slider-controls">
+                <span id="reward_value" class="slider-label">1.0</span>
+                <div id="reward_slider" class="slider"></div>
+                <input type="hidden" id="reward_multiplier" name="reward_multiplier" value="1.0">
+            </div>
+        </div>
+        <div class="intensity-bar reward" id="reward_bar"></div>
+        <br>
+        <label for="win_probability">Win Probability:</label>
+        <input type="text" id="win_probability" name="win_probability" placeholder="Enter win probability">
+
+        <label for="win_loss_ratio">Win/Loss Ratio:</label>
+        <input type="text" id="win_loss_ratio" name="win_loss_ratio" placeholder="Enter win/loss ratio">
+
+        <input type="submit" value="Calculate">
+    </form>
+
+    <!-- Initialize the sliders -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            function updateSliderColor(slider, value, max, min, bar, type) {
+                const percentage = (value - min) / (max - min);
+                let color;
+
+                if (type === 'risk') {
+                    color = `rgb(${Math.round(255 * percentage)}, 0, 0)`;
+                    bar.css('background', `linear-gradient(to right, ${color}, #ffcccc)`);
+                } else if (type === 'reward') {
+                    color = `rgb(${Math.round(255 * percentage)}, ${Math.round(255 * percentage)}, 0)`;
+                    bar.css('background', `linear-gradient(to right, ${color}, #ffffcc)`);
+                }
+
+                $(slider).find('.noUi-connect').css('background', color);
+            }
+
+            // Risk Slider
+            var riskSlider = document.getElementById('risk_slider');
+            var riskBar = $('#risk_bar');
+            noUiSlider.create(riskSlider, {
+                start: 1.0,
+            connect: 'lower',
+            range: {
+                'min': 0.5,
+                'max': 1.5
+            },
+            step: 0.001
+        });
+
+        riskSlider.noUiSlider.on('update', function (values, handle) {
+            var value = values[handle];
+            $('#risk_value').text(parseFloat(value).toFixed(2));
+            $('#risk_multiplier').val(parseFloat(value).toFixed(2));
+            updateSliderColor(riskSlider, value, 1.5, 0.5, riskBar, 'risk');
+            updateCombinedIntensityBar();
+        });
+
+        // Reward Slider
+        var rewardSlider = document.getElementById('reward_slider');
+        var rewardBar = $('#reward_bar');
+        noUiSlider.create(rewardSlider, {
+            start: 1.0,
+            connect: 'lower',
+            range: {
+                'min': 0.5,
+                'max': 1.5
+            },
+            step: 0.01
+        });
+
+        rewardSlider.noUiSlider.on('update', function (values, handle) {
+            var value = values[handle];
+            $('#reward_value').text(parseFloat(value).toFixed(2));
+            $('#reward_multiplier').val(parseFloat(value).toFixed(2));
+            updateSliderColor(rewardSlider, value, 1.5, 0.5, rewardBar, 'reward');
+            updateCombinedIntensityBar();
+        });
+
+        // Combined Intensity Bar
+function updateCombinedIntensityBar() {
+    const riskValue = parseFloat($('#risk_multiplier').val());
+    const rewardValue = parseFloat($('#reward_multiplier').val());
+    
+    // Calculate the combined intensity as the average of risk and reward values
+    const intensity = (riskValue + rewardValue) / 2.0;
+    
+    // Calculate the percentage based on the intensity range
+    const percentage = (intensity - 0.5) / 1.0 * 100;
+    
+    // Calculate the color intensity based on the percentage
+    const combinedColorIntensity = Math.round((percentage / 100) * 255);
+    const combinedColor = `rgb(${combinedColorIntensity}, ${255 - combinedColorIntensity}, 0)`;
+    
+    // Update the combined intensity bar's width and background color with transitions
+    $('#combined_intensity_bar').css({
+        'width': percentage + '%',
+        'background-color': combinedColor,
+        'transition': 'width 0.5s ease, background-color 0.5s ease'
+    });
+}
+    });
+</script>
+</body>
+</html>

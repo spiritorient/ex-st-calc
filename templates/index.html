@@ -217,13 +217,13 @@
     <h1>Exit Strategy Calculator</h1>
     <form action="/calculate" method="post">
         <label for="asset1">Asset 1:</label>
-        <input type="text" id="asset1" name="asset1" placeholder="Enter Asset 1 amount">
+        <input type="text" id="asset1" name="asset1" placeholder="Enter Asset 1 amount" required>
 
         <label for="asset2">Asset 2:</label>
-        <input type="text" id="asset2" name="asset2" placeholder="Enter Asset 2 amount">
+        <input type="text" id="asset2" name="asset2" placeholder="Enter Asset 2 amount" required>
 
         <label for="asset3">Asset 3:</label>
-        <input type="text" id="asset3" name="asset3" placeholder="Enter Asset 3 amount">
+        <input type="text" id="asset3" name="asset3" placeholder="Enter Asset 3 amount" required>
 
         <br>
 
@@ -419,6 +419,24 @@
                     'transition': 'width 0.5s ease, background-color 0.5s ease'
                 });
             }
+
+            // Add event listener to the form submit button
+            $('#calculate_button').on('click', function (event) {
+                let allFilled = true;
+                $('input[required]').each(function () {
+                    if ($(this).val() === '') {
+                        allFilled = false;
+                        $(this).css('border', '1px solid red'); // Highlight missing fields
+                    } else {
+                        $(this).css('border', ''); // Reset border if filled
+                    }
+                });
+
+                if (!allFilled) {
+                    event.preventDefault(); // Prevent form submission
+                    alert('Please fill all required fields.');
+                }
+            });
         });
     </script>
 </body>
